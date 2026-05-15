@@ -1,0 +1,10 @@
+package com.gurpreet.monocept.model;
+
+public class UPI implements IPayment{
+
+	@Override
+	public String pay() {
+		return "Payment type UPI, Payment Successful... ";
+	}
+
+}

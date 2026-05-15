@@ -1,0 +1,17 @@
+package com.gurpreet.monocept.model;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class BasketBallCoach implements ICoach{
+
+	@Override
+	public String getWorkoutDetails() {
+		return "Basket Ball - Jump rope for footwork";
+	}
+
+	public BasketBallCoach() {
+		System.out.println("Inside - " + getClass().getSimpleName());
+	}
+
+}

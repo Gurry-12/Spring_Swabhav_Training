@@ -1,0 +1,10 @@
+package com.gurpreet.monocept.model;
+
+public class Paypal implements IPayment{
+
+	@Override
+	public String pay() {
+		return "Payment type Paypal, Payment Successful... ";
+	}
+
+}

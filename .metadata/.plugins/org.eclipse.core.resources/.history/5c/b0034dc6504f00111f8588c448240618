@@ -1,0 +1,10 @@
+package com.gurpreet.monocept.model;
+
+public class PetrolEngine implements IEngine {
+
+	@Override
+	public String startEngine() {
+		return "Petrol Engine Started...";
+	}
+
+}

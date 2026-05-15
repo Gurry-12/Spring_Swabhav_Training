@@ -1,0 +1,36 @@
+package com.gurpreet.monocept.model;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class DemoController {
+
+//	@Autowired
+	private ICoach myCoach; // field injection
+
+//	@Autowired
+//	public DemoController(ICoach coach) { // constructor injection
+//		this.myCoach = coach;
+//	}
+//
+//	@Autowired
+//	public void setMyCoach(ICoach myCoach) { // setter injection
+//		this.myCoach = myCoach;
+//	}
+	
+	@Autowired
+	public DemoController(@Qualifier("vallyBallCoach") ICoach coach) { // Qualifier for dynamic injection
+		System.out.println("Inside - " + getClass().getSimpleName());
+		this.myCoach = coach;
+		
+	}
+
+	@GetMapping("/workoutDetails")
+	public String getworkoutDetailsByCoach() {
+		return myCoach.getWorkoutDetails();
+	}
+
+}

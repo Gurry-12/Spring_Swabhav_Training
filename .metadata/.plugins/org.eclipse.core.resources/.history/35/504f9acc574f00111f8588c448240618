@@ -1,0 +1,14 @@
+package com.gurpreet.monocept.model;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class FootballCoach implements ICoach {
+
+	@Override
+	public String getWorkoutDetails() {
+		return "Foot Ball - Passing drills for control";
+	}
+
+	
+}

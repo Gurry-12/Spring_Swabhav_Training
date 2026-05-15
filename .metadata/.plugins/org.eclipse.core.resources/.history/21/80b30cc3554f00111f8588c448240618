@@ -1,0 +1,10 @@
+package com.gurpreet.monocept.model;
+
+public class BadmintonCoach implements ICoach {
+
+	@Override
+	public String getWorkoutDetails() {
+		return "Practice smash in badminton";
+	}
+
+}

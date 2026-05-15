@@ -1,0 +1,10 @@
+package com.gurpreet.monocept.model;
+
+public class VallyballCoach implements ICoach{
+
+	@Override
+	public String getWorkoutDetails() {
+		return "Vally Ball - Practice Smash and passing";
+	}
+
+}

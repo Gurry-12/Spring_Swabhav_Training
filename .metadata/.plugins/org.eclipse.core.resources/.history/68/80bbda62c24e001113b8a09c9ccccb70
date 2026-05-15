@@ -1,0 +1,12 @@
+package com.gurpreet.monocept.model;
+
+//@Primary
+//@Component
+public class BasketBallCoach implements ICoach{
+
+	@Override
+	public String getWorkoutDetails() {
+		return "Jump rope for footwork";
+	}
+
+}

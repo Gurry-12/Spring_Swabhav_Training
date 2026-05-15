@@ -1,0 +1,14 @@
+package com.gurpreet.monocept.model;
+
+import org.springframework.stereotype.Component;
+
+@Primary
+@Component
+public class CricketCoach  implements ICoach{
+
+	@Override
+	public String getWorkoutDetails() {
+		return "Practice Batting and Bowling";
+	}
+
+}
