@@ -26,5 +26,13 @@ public interface EmployeeDAO {
 
 // create employee
 	void createEmployee(Employee employee);
+	
+	// update name 
+	void updateEmployeeName(int id, String name);
+	
+	// delete 
+	void deleteEmployee(int id);
+
+	Employee updateEmployee(Employee employee);
 
 }

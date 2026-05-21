@@ -62,4 +62,26 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 
 	}
 
+	@Override
+	public void updateEmployeeName(int id, String name) {
+		entityManager.createQuery("update Employee set empName = :name where empId = :id").setParameter("name", name)
+				.setParameter("id", id).executeUpdate();
+	}
+
+	@Override
+	@Transactional
+	public Employee updateEmployee(Employee employee) {
+		return entityManager.merge(employee);
+	}
+
+	@Override
+	public void deleteEmployee(int id) {
+		Employee employee = readEmployeeById(id);
+		if (employee != null) {
+			entityManager.remove(employee);
+		}
+	}
+	
+	
+
 }
