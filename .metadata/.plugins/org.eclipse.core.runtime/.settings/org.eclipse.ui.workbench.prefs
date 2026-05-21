@@ -20,7 +20,6 @@ OUTGOING_COLOR,defaultValueBeforeOverriddenFromCSS=0,0,0
 PLUGINS_NOT_ACTIVATED_ON_STARTUP=;org.eclipse.m2e.discovery;
 RESOLVED_COLOR=108,210,17
 RESOLVED_COLOR,defaultValueBeforeOverriddenFromCSS=0,255,0
-SAVE_AUTOMATICALLY=true
 SAVE_AUTOMATICALLY_INTERVAL=5
 eclipse.preferences.version=1
 org.eclipse.egit.ui.CommitMessageCommentColor=128,128,128
