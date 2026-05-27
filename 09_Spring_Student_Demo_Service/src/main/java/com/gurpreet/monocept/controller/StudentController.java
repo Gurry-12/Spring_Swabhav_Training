@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gurpreet.monocept.dto.StudentRequestDto;
+import com.gurpreet.monocept.dto.StudentResponseDto;
 import com.gurpreet.monocept.entity.Student;
 import com.gurpreet.monocept.exception.StudentNotFoundException;
 import com.gurpreet.monocept.repository.StudentRepository;
@@ -32,33 +34,33 @@ public class StudentController {
 	}
 
 	@PostMapping("/create")
-	public Student createStudent(@RequestBody Student student) {
-		return studentService.createStudent(student);
+	public StudentResponseDto createStudent(@RequestBody StudentRequestDto studentRequestDto) {
+		return studentService.createStudent(studentRequestDto);
 	}
 
 	@PostMapping("/createMultiple")
-	public List<Student> createBulkStudents(@RequestBody List<Student> students) {
-		return studentService.createBulkStudents(students);
+	public List<StudentResponseDto> createBulkStudents(@RequestBody List<StudentRequestDto> studentRequestDtos) {
+		return studentService.createBulkStudents(studentRequestDtos);
 	}
 
 	@GetMapping("/{id}")
-	public Student getStudentById(@PathVariable int id) {
+	public StudentResponseDto getStudentById(@PathVariable int id) {
 		return studentService.getStudentById(id);
 	}
 
 	@GetMapping("/getStudents")
-	public List<Student> getAllStudents() {
+	public List<StudentResponseDto> getAllStudents() {
 		return studentService.getAllStudents();
 	}
 
 	@PutMapping("/{id}")
-	public Student updateStudent(@PathVariable int id, @RequestBody Student updateStudent) {
-		return studentService.updateStudent(id, updateStudent);
+	public StudentResponseDto updateStudent(@PathVariable int id, @RequestBody StudentRequestDto updateStudentRequestDto) {
+		return studentService.updateStudent(id, updateStudentRequestDto);
 
 	}
 
 	@PatchMapping("/{id}")
-	public Student updateStudentPartially(@PathVariable int id, @RequestBody Map<String, Object> updateData) {
+	public StudentResponseDto updateStudentPartially(@PathVariable int id, @RequestBody Map<String, Object> updateData) {
 		return studentService.updateStudentPartially(id, updateData);
 	}
 

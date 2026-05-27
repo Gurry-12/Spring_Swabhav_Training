@@ -4,12 +4,12 @@ public class StudentResponseDto {
 
 	private String fullName;
 	private int age;
-	private String department;
+	//private String department;
 
 	public StudentResponseDto(String fullName, int age, String department) {
 		this.fullName = fullName;
 		this.age = age;
-		this.department = department;
+		//this.department = department;
 	}
 
 	public StudentResponseDto() {
@@ -23,9 +23,9 @@ public class StudentResponseDto {
 		return age;
 	}
 
-	public String getDepartment() {
-		return department;
-	}
+//	public String getDepartment() {
+//		return department;
+//	}
 
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
@@ -35,8 +35,13 @@ public class StudentResponseDto {
 		this.age = age;
 	}
 
-	public void setDepartment(String department) {
-		this.department = department;
+	@Override
+	public String toString() {
+		return "StudentResponseDto [fullName=" + fullName + ", age=" + age + "]";
 	}
+
+//	public void setDepartment(String department) {
+//		this.department = department;
+//	}
 
 }

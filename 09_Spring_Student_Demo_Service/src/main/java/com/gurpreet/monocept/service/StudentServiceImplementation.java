@@ -1,11 +1,14 @@
 package com.gurpreet.monocept.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gurpreet.monocept.dto.StudentRequestDto;
+import com.gurpreet.monocept.dto.StudentResponseDto;
 import com.gurpreet.monocept.entity.Student;
 import com.gurpreet.monocept.exception.StudentNotFoundException;
 import com.gurpreet.monocept.repository.StudentRepository;
@@ -21,40 +24,76 @@ public class StudentServiceImplementation implements StudentService {
 	}
 
 	@Override
-	public Student createStudent(Student student) {
-		return studentRepository.save(student);
+	public StudentResponseDto createStudent(StudentRequestDto studentRequestDto) {
+
+		Student student = convertToEntity(studentRequestDto);
+
+		Student retrivedStudent = studentRepository.save(student);
+
+		StudentResponseDto studentResponseDto = convertToStudentResponseDto(retrivedStudent);
+
+		return studentResponseDto;
+
 	}
 
 	@Override
-	public List<Student> createBulkStudents(List<Student> students) {
-		return studentRepository.saveAll(students);
+	public List<StudentResponseDto> createBulkStudents(List<StudentRequestDto> studentRequestDtos) {
+
+		List<Student> students = new ArrayList<Student>();
+		for (StudentRequestDto dto : studentRequestDtos) {
+			students.add(convertToEntity(dto));
+		}
+
+		List<Student> retrivedStudents = studentRepository.saveAll(students);
+
+		List<StudentResponseDto> studentResponseDtos = new ArrayList<StudentResponseDto>();
+		for (Student student : retrivedStudents) {
+			studentResponseDtos.add(convertToStudentResponseDto(student));
+		}
+
+		return studentResponseDtos;
 	}
 
 	@Override
-	public Student getStudentById(int id) {
+	public StudentResponseDto getStudentById(int id) {
 		Student foundStudent = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
-		;
-		return foundStudent;
+
+		StudentResponseDto foundStudentResponseDto = convertToStudentResponseDto(foundStudent);
+
+		return foundStudentResponseDto;
 	}
 
 	@Override
-	public List<Student> getAllStudents() {
-		return studentRepository.findAll();
+	public List<StudentResponseDto> getAllStudents() {
+
+		List<Student> retrivedStudents = studentRepository.findAll();
+
+		List<StudentResponseDto> studentResponseDtos = new ArrayList<StudentResponseDto>();
+		for (Student student : retrivedStudents) {
+			studentResponseDtos.add(convertToStudentResponseDto(student));
+		}
+
+		return studentResponseDtos;
 	}
 
 	@Override
-	public Student updateStudent(int id, Student updateStudent) {
+	public StudentResponseDto updateStudent(int id, StudentRequestDto updateStudentRequestDto) {
+
+		Student updateStudent = convertToEntity(updateStudentRequestDto);
 		Student existingStudent = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
 		existingStudent.setFullName(updateStudent.getFullName());
 		existingStudent.setAge(updateStudent.getAge());
 		existingStudent.setDepartment(updateStudent.getDepartment());
 
-		return studentRepository.save(existingStudent);
+		Student updatedStudent = studentRepository.save(existingStudent);
+
+		StudentResponseDto studentResponseDto = convertToStudentResponseDto(updatedStudent);
+		return studentResponseDto;
 	}
 
 	@Override
-	public Student updateStudentPartially(int id, Map<String, Object> updateData) {
+	public StudentResponseDto updateStudentPartially(int id, Map<String, Object> updateData) {
 		Student existingStudent = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
 		if (updateData.containsKey("fullName")) {
@@ -67,7 +106,10 @@ public class StudentServiceImplementation implements StudentService {
 			existingStudent.setDepartment((String) updateData.get("department"));
 		}
 
-		return studentRepository.save(existingStudent);
+		Student updatedStudent = studentRepository.save(existingStudent);
+
+		StudentResponseDto studentResponseDto = convertToStudentResponseDto(updatedStudent);
+		return studentResponseDto;
 	}
 
 	@Override
@@ -76,6 +118,31 @@ public class StudentServiceImplementation implements StudentService {
 
 		studentRepository.delete(existingStudent);
 
+	}
+
+	// helper methods
+	private Student convertToEntity(StudentRequestDto studentRequestDto) {
+
+		Student student = new Student();
+
+		// seting values
+		student.setFullName(studentRequestDto.getFullName());
+		student.setAge(studentRequestDto.getAge());
+		student.setDepartment(studentRequestDto.getDepartment());
+
+		return student;
+	}
+
+	private StudentResponseDto convertToStudentResponseDto(Student student) {
+
+		StudentResponseDto studentResponseDto = new StudentResponseDto();
+
+		// seting values
+		studentResponseDto.setFullName(student.getFullName());
+		studentResponseDto.setAge(student.getAge());
+		//studentResponseDto.setDepartment(student.getDepartment());
+
+		return studentResponseDto;
 	}
 
 }

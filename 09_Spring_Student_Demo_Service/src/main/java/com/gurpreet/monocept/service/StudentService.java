@@ -3,21 +3,23 @@ package com.gurpreet.monocept.service;
 import java.util.List;
 import java.util.Map;
 
+import com.gurpreet.monocept.dto.StudentRequestDto;
+import com.gurpreet.monocept.dto.StudentResponseDto;
 import com.gurpreet.monocept.entity.Student;
 
 public interface StudentService {
 
-	Student createStudent(StudentRequestDto student);
+	StudentResponseDto createStudent(StudentRequestDto student);
 	
-	List<Student> createBulkStudents(List<Student> students);
+	List<StudentResponseDto> createBulkStudents(List<StudentRequestDto> students);
 	
-	Student getStudentById(int id);
+	StudentResponseDto getStudentById(int id);
 	
-	List<Student> getAllStudents();
+	List<StudentResponseDto> getAllStudents();
 	
-	Student updateStudent(int id, Student updateStudent);
+	StudentResponseDto updateStudent(int id, StudentRequestDto updateStudent);
 	
-	Student updateStudentPartially(int id, Map<String,Object> updateData );
+	StudentResponseDto updateStudentPartially(int id, Map<String,Object> updateData );
 	
 	void deleteStudent(int id);
 }

@@ -39,6 +39,11 @@ public class StudentRequestDto {
 	public void setDepartment(String department) {
 		this.department = department;
 	}
+
+	@Override
+	public String toString() {
+		return "StudentRequestDto [fullName=" + fullName + ", age=" + age + ", department=" + department + "]";
+	}
 	
 	
 
