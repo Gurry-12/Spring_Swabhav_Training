@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Rename type &apos;com.gurpreet.monocept.model.IPaymentService&apos; to &apos;IPayment&apos;&#x0D;&#x0A;- Original project: &apos;03_Spring_Core_Payment_Demo&apos;&#x0D;&#x0A;- Original element: &apos;com.gurpreet.monocept.model.IPaymentService&apos;&#x0D;&#x0A;- Renamed element: &apos;com.gurpreet.monocept.model.IPayment&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;IPaymentService&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.gurpreet.monocept.model{IPaymentService.java[IPaymentService" matchStrategy="1" name="IPayment" qualified="false" references="true" similarDeclarations="false" stamp="1778738630739" textual="false" version="1.0"/>
-</session>
