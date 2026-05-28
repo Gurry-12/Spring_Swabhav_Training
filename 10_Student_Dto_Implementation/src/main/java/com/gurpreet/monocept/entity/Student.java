@@ -11,9 +11,15 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "students")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Student {
 
 	@Id
@@ -37,50 +43,50 @@ public class Student {
 	@Size(max = 50, message = "Department name can't exceed 50 characters")
 	private String department;
 
-	public Student(String fullName, int age, String department) {
-		this.fullName = fullName;
-		this.age = age;
-		this.department = department;
-	}
-
-	public Student() {
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public String getFullName() {
-		return fullName;
-	}
-
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
-
-	public int getAge() {
-		return age;
-	}
-
-	public void setAge(int age) {
-		this.age = age;
-	}
-
-	public String getDepartment() {
-		return department;
-	}
-
-	public void setDepartment(String department) {
-		this.department = department;
-	}
-
-	@Override
-	public String toString() {
-		return "Student [Id=" + id + ", FullName=" + fullName + ", Age=" + age + ", Department=" + department + "]";
-	}
+//	public Student(String fullName, int age, String department) {
+//		this.fullName = fullName;
+//		this.age = age;
+//		this.department = department;
+//	}
+//
+//	public Student() {
+//	}
+//
+//	public int getId() {
+//		return id;
+//	}
+//
+//	public void setId(int id) {
+//		this.id = id;
+//	}
+//
+//	public String getFullName() {
+//		return fullName;
+//	}
+//
+//	public void setFullName(String fullName) {
+//		this.fullName = fullName;
+//	}
+//
+//	public int getAge() {
+//		return age;
+//	}
+//
+//	public void setAge(int age) {
+//		this.age = age;
+//	}
+//
+//	public String getDepartment() {
+//		return department;
+//	}
+//
+//	public void setDepartment(String department) {
+//		this.department = department;
+//	}
+//
+//	@Override
+//	public String toString() {
+//		return "Student [Id=" + id + ", FullName=" + fullName + ", Age=" + age + ", Department=" + department + "]";
+//	}
 
 }
