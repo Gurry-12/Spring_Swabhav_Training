@@ -23,3 +23,82 @@
 hs_err_pid*
 replay_pid*
 /.metadata/
+
+# =========================================================================
+# Spring Tool Suite / Eclipse Metadata
+# =========================================================================
+.metadata/
+.bin/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~
+.project
+.classpath
+.settings/
+.loadpath
+.factorypath
+.recommenders/
+
+# =========================================================================
+# Build Outputs
+# =========================================================================
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.next
+pom.xml.versionsBackup
+release.properties
+
+# Gradle
+.gradle/
+build/
+
+# =========================================================================
+# Security & Local Configurations (DO NOT COMMIT SECRETS)
+# =========================================================================
+# Ignore actual properties file if it contains production secrets
+# application.properties
+# application.yml
+
+# Local environment overrides
+.env
+.env.local
+*.local
+
+# =========================================================================
+# Logs & Runtime Data
+# =========================================================================
+*.log
+logs/
+media/
+
+# =========================================================================
+# OS & IDE System Files
+# =========================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Ehthumbs.db
+Desktop.ini
+
+# IntelliJ IDEA (In case teammates use it)
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
