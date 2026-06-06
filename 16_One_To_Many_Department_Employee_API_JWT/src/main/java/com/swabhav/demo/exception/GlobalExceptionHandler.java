@@ -1,130 +1,101 @@
 package com.swabhav.demo.exception;
 
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
+        log.warn("Resource not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
 
-	@ExceptionHandler(ResourceNotFoundException.class)
-	public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
-		logger.warn("Resource tracking notice: {}", ex.getMessage());
-		Map<String, Object> errorBody = new HashMap<>();
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateResource(DuplicateResourceException ex) {
+        log.warn("Duplicate resource: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
 
-		errorBody.put("Timestamp", LocalDateTime.now());
-		errorBody.put("status", HttpStatus.NOT_FOUND.value());
-		errorBody.put("error", "Not Found");
-		errorBody.put("message", ex.getMessage());
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Map<String, Object>> handleBadRequest(BadRequestException ex) {
+        log.warn("Bad request: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
 
-		return new ResponseEntity<>(errorBody, HttpStatus.NOT_FOUND);
-	}
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("Illegal argument: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
 
-	@ExceptionHandler(DuplicateResourceException.class)
-	public ResponseEntity<Map<String, Object>> handleDuplicateResource(DuplicateResourceException ex) {
-		logger.warn("Business constraint violation: {}", ex.getMessage());
-		Map<String, Object> errorBody = new HashMap<>();
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+        log.warn("Validation failed");
+        Map<String, String> validationErrors = new LinkedHashMap<>();
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
+        }
+        Map<String, Object> error = new LinkedHashMap<>();
+        error.put("timestamp", LocalDateTime.now());
+        error.put("status", HttpStatus.BAD_REQUEST.value());
+        error.put("error", "Validation Failed");
+        error.put("messages", validationErrors);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 
-		errorBody.put("Timestamp", LocalDateTime.now());
-		errorBody.put("status", HttpStatus.CONFLICT.value());
-		errorBody.put("error", "Conflict");
-		errorBody.put("message", ex.getMessage());
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        log.warn("Invalid path variable or request parameter: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid input. Please provide valid data.");
+    }
 
-		return new ResponseEntity<>(errorBody, HttpStatus.CONFLICT);
-	}
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidJson(HttpMessageNotReadableException ex) {
+        log.warn("Invalid JSON request body");
+        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid JSON request body.");
+    }
 
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
-		logger.warn("DTO validation processing failure: payload fields failed validation check rules");
-		Map<String, Object> errorBody = new HashMap<>();
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleDataIntegrity(DataIntegrityViolationException ex) {
+        log.error("Database constraint violation: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "Duplicate or invalid database value.");
+    }
 
-		errorBody.put("Timestamp", LocalDateTime.now());
-		errorBody.put("status", HttpStatus.BAD_REQUEST.value());
-		errorBody.put("error", "Bad Request");
-		errorBody.put("message", ex.getMessage());
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, "You do not have permission to access this resource.");
+    }
 
-		return new ResponseEntity<>(errorBody, HttpStatus.BAD_REQUEST);
-	}
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
+        log.error("Unexpected error occurred", ex);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong.");
+    }
 
-	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-	public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-		logger.warn("URI parameter type extraction failure: {}", ex.getMessage());
-		Map<String, Object> errorBody = new HashMap<>();
-
-		errorBody.put("Timestamp", LocalDateTime.now());
-		errorBody.put("status", HttpStatus.BAD_REQUEST.value());
-		errorBody.put("error", "Bad Request");
-		errorBody.put("message", ex.getMessage());
-
-		return new ResponseEntity<>(errorBody, HttpStatus.BAD_REQUEST);
-	}
-
-	@ExceptionHandler(HttpMessageNotReadableException.class)
-	public ResponseEntity<Map<String, Object>> handleInvalidJson(HttpMessageNotReadableException ex) {
-		logger.warn("Malformed HTTP request payload string dropped reading processing stage");
-		Map<String, Object> errorBody = new HashMap<>();
-
-		errorBody.put("Timestamp", LocalDateTime.now());
-		errorBody.put("status", HttpStatus.BAD_REQUEST.value());
-		errorBody.put("error", "Bad Request");
-		errorBody.put("message", ex.getMessage());
-
-		return new ResponseEntity<>(errorBody, HttpStatus.BAD_REQUEST);
-	}
-
-	@ExceptionHandler(DataIntegrityViolationException.class)
-	public ResponseEntity<Map<String, Object>> handleDataIntegrity(DataIntegrityViolationException ex) {
-		logger.warn("Database interaction data integrity conflict encountered: {}",
-				ex.getMostSpecificCause().getMessage());
-		Map<String, Object> errorBody = new HashMap<>();
-
-		errorBody.put("Timestamp", LocalDateTime.now());
-		errorBody.put("status", HttpStatus.CONFLICT.value());
-		errorBody.put("error", "Conflict");
-		errorBody.put("message", ex.getMessage());
-
-		return new ResponseEntity<>(errorBody, HttpStatus.CONFLICT);
-	}
-
-	@ExceptionHandler(AccessDeniedException.class)
-	public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
-		logger.warn(
-				"Security Authorization failure context: Principal denied privilege to execute requested endpoint operation");
-		Map<String, Object> errorBody = new HashMap<>();
-
-		errorBody.put("Timestamp", LocalDateTime.now());
-		errorBody.put("status", HttpStatus.FORBIDDEN.value());
-		errorBody.put("error", "Forbidden");
-		errorBody.put("message", ex.getMessage());
-
-		return new ResponseEntity<>(errorBody, HttpStatus.FORBIDDEN);
-	}
-
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
-
-		logger.warn("Unhandled runtime system error intercepted by Global Fallback Context: ", ex);
-		Map<String, Object> errorBody = new HashMap<>();
-
-		errorBody.put("Timestamp", LocalDateTime.now());
-		errorBody.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-		errorBody.put("error", "Internal server error");
-		errorBody.put("message", ex.getMessage());
-
-		return new ResponseEntity<>(errorBody, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+    private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
+        Map<String, Object> error = new LinkedHashMap<>();
+        error.put("timestamp", LocalDateTime.now());
+        error.put("status", status.value());
+        error.put("error", status.getReasonPhrase());
+        error.put("message", message);
+        return new ResponseEntity<>(error, status);
+    }
 }

@@ -2,8 +2,6 @@ package com.swabhav.demo.controller;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,70 +24,97 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/departments")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "basicAuth")
-@Tag(name = "Department API", description = "Manage Department crud role based ")
+@Tag(name = "Department API", description = "Manage Department crud role based")
 public class DepartmentController {
 
-	private static final Logger logger = LoggerFactory.getLogger(DepartmentController.class);
-	private final DepartmentService departmentService;
+    private final DepartmentService departmentService;
 
-	@PostMapping
-	@ResponseStatus(HttpStatus.ACCEPTED)
-	@Operation(summary = "Create Department", description = "Returns a created department .")
-	public DepartmentResponseDto createDepartment(@Valid @RequestBody DepartmentRequestDto departmentRequestDto) {
-		logger.info("REST request to create Department with name: {}", departmentRequestDto.getDepartmentName());
-		DepartmentResponseDto response = departmentService.createDepartment(departmentRequestDto);
-		logger.info("Successfully created Department with ID: {}", response.getId());
-		return response;
-	}
+    @PostMapping
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "Create Department", description = "Returns a created department.")
+    public DepartmentResponseDto createDepartment(@Valid @RequestBody DepartmentRequestDto departmentRequestDto) {
+        log.info("REST request to create Department with name: {}", departmentRequestDto.getDepartmentName());
+        
+        DepartmentResponseDto response = departmentService.createDepartment(departmentRequestDto);
+        
+        log.info("Successfully created Department with ID: {} and Name: {}", 
+                   response.getId(), response.getDepartmentName());
+        return response;
+    }
 
-	@GetMapping
-	@Operation(summary = "Get all Departments", description = "Returns a list of department objects.")
-	public List<DepartmentResponseDto> getAllDepartments() {
-		List<DepartmentResponseDto> departmentResponseDtos = departmentService.getAllDepartments();
-		logger.info("Successfully fetched {} departments", departmentResponseDtos.size());
-		return departmentResponseDtos;
-	}
+    @GetMapping
+    @Operation(summary = "Get all Departments", description = "Returns a list of department objects.")
+    public List<DepartmentResponseDto> getAllDepartments() {
+        log.info("REST request to fetch all Departments");
+        
+        List<DepartmentResponseDto> departmentResponseDtos = departmentService.getAllDepartments();
+        
+        log.info("Successfully fetched {} department(s)", departmentResponseDtos.size());
+        return departmentResponseDtos;
+    }
 
-	@GetMapping("/page")
-	@Operation(summary = "Get deartments by pagination", description = "Returns list of departments with pagination data.")
-	public PageResponseDto<DepartmentResponseDto> getAllDepartmentsWithPagination(
-			@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "5") int pageSize) {
-		PageResponseDto<DepartmentResponseDto> pageResponse = departmentService
-				.getAllDepartmentsWithPagination(pageNumber, pageSize);
-		logger.info("Fetched page metadata - Total Elements: {}, Total Pages: {}", pageResponse.getTotalElements(),
-				pageResponse.getTotalPages());
-		return pageResponse;
-	}
+    @GetMapping("/page")
+    @Operation(summary = "Get departments by pagination", description = "Returns list of departments with pagination data.")
+    public PageResponseDto<DepartmentResponseDto> getAllDepartmentsWithPagination(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "5") int pageSize) {
+        
+        log.info("REST request to fetch departments with pagination - Page: {}, Size: {}", pageNumber, pageSize);
+        
+        PageResponseDto<DepartmentResponseDto> pageResponse = departmentService
+                .getAllDepartmentsWithPagination(pageNumber, pageSize);
+        
+        log.info("Successfully fetched page - Total Elements: {}, Total Pages: {}, Current Page: {}", 
+                   pageResponse.getTotalElements(), pageResponse.getTotalPages(), pageNumber);
+        return pageResponse;
+    }
 
-	@GetMapping("/{id}")
-	@Operation(summary = "Get depatment by ID", description = "Returns a single department object.")
-	public DepartmentResponseDto getDepartmentById(@PathVariable Long id) {
-		logger.info("REST request to fetch Department by ID: {}", id);
-		return departmentService.getDepartmentById(id);
-	}
+    @GetMapping("/{id}")
+    @Operation(summary = "Get department by ID", description = "Returns a single department object.")
+    public DepartmentResponseDto getDepartmentById(@PathVariable Long id) {
+        log.info("REST request to fetch Department by ID: {}", id);
+        
+        DepartmentResponseDto response = departmentService.getDepartmentById(id);
+        
+        if (response == null) {
+            log.warn("Department with ID: {} not found", id);
+        } else {
+            log.info("Successfully fetched Department with ID: {} and Name: {}", 
+                       response.getId(), response.getDepartmentName());
+        }
+        return response;
+    }
 
-	@PutMapping("/{id}")
-	@Operation(summary = "update department by ID", description = "Returns a updated department object.")
-	public DepartmentResponseDto updateDepartment(@PathVariable Long id,
-			@Valid @RequestBody DepartmentRequestDto departmentRequestDto) {
-		logger.info("REST request to update Department ID: {}", id);
-		DepartmentResponseDto response = departmentService.updateDepartment(id, departmentRequestDto);
-		logger.info("Successfully updated Department ID: {}", id);
-		return response;
-	}
+    @PutMapping("/{id}")
+    @Operation(summary = "Update department by ID", description = "Returns an updated department object.")
+    public DepartmentResponseDto updateDepartment(@PathVariable Long id,
+                                                  @Valid @RequestBody DepartmentRequestDto departmentRequestDto) {
+        
+        log.info("REST request to update Department ID: {} with name: {}", 
+                   id, departmentRequestDto.getDepartmentName());
+        
+        DepartmentResponseDto response = departmentService.updateDepartment(id, departmentRequestDto);
+        
+        log.info("Successfully updated Department with ID: {} and Name: {}", 
+                   response.getId(), response.getDepartmentName());
+        return response;
+    }
 
-	@DeleteMapping("/{id}")
-	@Operation(summary = "delete department by ID", description = "Returns nothing only 203 status code .")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteDepartment(@PathVariable Long id) {
-		logger.info("REST request to delete Department ID: {}", id);
-		departmentService.deleteDepartment(id);
-		logger.info("Successfully deleted Department ID: {}", id);
-	}
-
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete department by ID", description = "Returns 204 No Content.")
+    public void deleteDepartment(@PathVariable Long id) {
+        log.info("REST request to delete Department with ID: {}", id);
+        
+        departmentService.deleteDepartment(id);
+        
+        log.info("Successfully deleted Department with ID: {}", id);
+    }
 }
