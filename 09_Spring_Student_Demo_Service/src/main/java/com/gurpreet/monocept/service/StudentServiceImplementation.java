@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.gurpreet.monocept.dto.PageResponseDto;
 import com.gurpreet.monocept.dto.StudentRequestDto;
 import com.gurpreet.monocept.dto.StudentResponseDto;
 import com.gurpreet.monocept.entity.Student;
@@ -17,10 +21,11 @@ import com.gurpreet.monocept.repository.StudentRepository;
 public class StudentServiceImplementation implements StudentService {
 
 	private StudentRepository studentRepository;
-
+	private ModelMapper modelMapper;
 	@Autowired
-	public StudentServiceImplementation(StudentRepository studentRepository) {
+	public StudentServiceImplementation(StudentRepository studentRepository, ModelMapper modelMapper) {
 		this.studentRepository = studentRepository;
+		this.modelMapper = modelMapper;
 	}
 
 	@Override
@@ -140,9 +145,45 @@ public class StudentServiceImplementation implements StudentService {
 		// seting values
 		studentResponseDto.setFullName(student.getFullName());
 		studentResponseDto.setAge(student.getAge());
-		//studentResponseDto.setDepartment(student.getDepartment());
+		studentResponseDto.setDepartment(student.getDepartment());
 
 		return studentResponseDto;
+	}
+	
+	@Override
+	public PageResponseDto<StudentResponseDto> getAllStudentsWithPagination(int pageNumber, int pageSize) {
+	
+		PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+		
+		Page<Student> studentPage = studentRepository.findAll(pageable);
+		
+		List<Student> students = studentPage.getContent();
+		
+		List<StudentResponseDto> studentResponses = new ArrayList<>();
+		
+		for(Student s : students) {
+			studentResponses.add(modelMapper.map(s, StudentResponseDto.class));
+		}
+		
+		PageResponseDto<StudentResponseDto> pageResponseDto = new PageResponseDto<>();
+		
+		pageResponseDto.setContent(studentResponses);
+		pageResponseDto.setPageNumber(studentPage.getNumber());
+		pageResponseDto.setPageSize(studentPage.getSize());
+		pageResponseDto.setTotalCount(studentPage.getTotalElements());
+		pageResponseDto.setTotalPages(studentPage.getTotalPages());
+		pageResponseDto.setLastPage(studentPage.isLast());
+		
+		return pageResponseDto;
+//		return new PageResponseDto<StudentResponseDto>(
+//				
+//				studentResponses,
+//				studentPage.getNumber(),
+//				studentPage.getSize(),
+//				studentPage.getTotalElements(),
+//				studentPage.getTotalPages(),
+//				studentPage.isLast()
+//				);
 	}
 
 }
