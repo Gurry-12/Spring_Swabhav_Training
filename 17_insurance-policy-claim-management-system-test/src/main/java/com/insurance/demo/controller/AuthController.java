@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 @Tag(name = "1. Authentication API", description = "Endpoints for user registration, login, and OTP verification")
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
 	private final AuthService authService;
