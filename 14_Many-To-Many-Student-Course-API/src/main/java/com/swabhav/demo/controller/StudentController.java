@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/students")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "basicAuth")
-@CrossOrigin("http://localhost:5173/")
+@CrossOrigin(origins = "http://localhost:5173")
 public class StudentController {
 
     private final StudentService studentService;
