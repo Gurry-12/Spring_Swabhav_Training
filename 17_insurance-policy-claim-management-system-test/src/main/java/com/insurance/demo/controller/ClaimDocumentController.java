@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +26,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "9. Claim Document API", description = "Endpoints for handling supporting documents for insurance claims")
-@CrossOrigin(origins = "http://localhost:5173")
 public class ClaimDocumentController {
 
 	private final ClaimDocumentService claimDocumentService;
@@ -35,7 +33,7 @@ public class ClaimDocumentController {
 	@PreAuthorize("hasRole('CUSTOMER')")
 	@PostMapping(value = "/upload/{claimId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Upload Claim Documents", description = "Uploads multiple supporting document files (e.g., images, PDFs) for a specific claim.")
-	public ApiResponseDTO<List<ClaimDocumentResponseDTO>> uploadDocument(@PathVariable Long claimId,
+	public ApiResponseDTO<List<ClaimDocumentResponseDTO>> uploadDocument(@PathVariable("claimId") Long claimId,
 			@RequestParam("files") List<MultipartFile> files) throws IOException {
 
 		return claimDocumentService.uploadDocuments(claimId, files);

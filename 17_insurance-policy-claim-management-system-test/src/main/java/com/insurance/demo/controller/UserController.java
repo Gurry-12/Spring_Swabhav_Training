@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.insurance.demo.dto.request.CreateAgentRequestDTO;
+import com.insurance.demo.dto.request.CreateStaffRequestDTO;
 import com.insurance.demo.dto.response.ApiResponseDTO;
 import com.insurance.demo.dto.response.PageResponseDTO;
 import com.insurance.demo.dto.response.UserResponseDTO;
@@ -31,8 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
 @SecurityRequirement(name = "bearerAuth")
-@Tag(name = "2. User Management API", description = "Endpoints for managing users and agents (Admin only)")
-@CrossOrigin(origins = "http://localhost:5173")
+@Tag(name = "2. User Management API", description = "Endpoints for managing users and staff (Admin only)")
 public class UserController {
 
 	private final UserService userService;
@@ -58,12 +56,12 @@ public class UserController {
 		return userService.deactivateUser(id);
 	}
 
-	@PostMapping("/agent")
+	@PostMapping("/staff")
 	@PreAuthorize("hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.CREATED)
-	@Operation(summary = "Create a New Agent", description = "Registers a new agent account and sends an activation OTP. Restricted to Admin.")
-	public ApiResponseDTO<UserResponseDTO> createAgentUser(@Valid @RequestBody CreateAgentRequestDTO agentRequestDTO) {
-		return userService.createAgentUser(agentRequestDTO);
+	@Operation(summary = "Create a New Insurance Operations Officer", description = "Registers a new staff account and sends an activation OTP. Restricted to Admin.")
+	public ApiResponseDTO<UserResponseDTO> createInternalStaffUser(@Valid @RequestBody CreateStaffRequestDTO staffRequestDTO) {
+		return userService.createInternalStaffUser(staffRequestDTO);
 	}
 
 	@GetMapping("/{id}")

@@ -1,8 +1,8 @@
 package com.insurance.demo.serviceimpl;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -16,11 +16,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.insurance.demo.enums.Role;
 import com.insurance.demo.dto.request.CustomerRequestDTO;
 import com.insurance.demo.dto.response.ApiResponseDTO;
 import com.insurance.demo.dto.response.CustomerResponseDTO;
 import com.insurance.demo.dto.response.PageResponseDTO;
+import com.insurance.demo.enums.Role;
 import com.insurance.demo.exception.BadRequestException;
 import com.insurance.demo.exception.ResourceNotFoundException;
 import com.insurance.demo.model.AppUser;
@@ -28,6 +28,7 @@ import com.insurance.demo.model.Customer;
 import com.insurance.demo.repository.AppUserRepository;
 import com.insurance.demo.repository.CustomerRepository;
 import com.insurance.demo.service.CustomerService;
+import com.insurance.demo.util.PaginationValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,48 +44,40 @@ public class CustomerServiceImpl implements CustomerService {
 	private final ModelMapper modelMapper;
 
 	@Override
-	public ApiResponseDTO<CustomerResponseDTO> createCustomer(Long userId, CustomerRequestDTO requestDTO) {
+	public ApiResponseDTO<CustomerResponseDTO> createCustomer(CustomerRequestDTO requestDTO) {
 
-		logger.info("Creating customer profile for userId: {}", userId);
-
-		if (requestDTO.getDateOfBirth().isAfter(LocalDate.now().minusYears(18))) {
-
-			throw new BadRequestException("Customer must be at least 18 years old");
-		}
-
-		AppUser user = appUserRepository.findById(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
-		if (user.getRole() != Role.ROLE_CUSTOMER) {
-			throw new BadRequestException("Only users with customer role can have a customer profile");
-		}
-
-		if (customerRepository.existsByUserId(userId)) {
-			throw new BadRequestException("Customer profile already exists for this user");
-		}
-
+		// Get logged-in user from JWT
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		String loggedInEmail = authentication.getName();
-		
-		AppUser loggedInUser = appUserRepository.findByEmail(loggedInEmail)
-				.orElseThrow(() -> new ResourceNotFoundException("user's profile not found"));
-		
-		if (!user.getId().equals(loggedInUser.getId())) {
-			throw new BadRequestException("You can not create another user as customer");
+
+		AppUser user = appUserRepository.findByEmail(loggedInEmail)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+		logger.info("Creating customer profile for userId: {}", user.getId());
+
+		// Verify role
+		if (user.getRole() != Role.ROLE_CUSTOMER) {
+			throw new BadRequestException("Only customers can create customer profiles");
 		}
 
-		Customer customer = modelMapper.map(requestDTO, Customer.class);
+		// Fetch existing empty profile or create a new one if somehow missing
+		Customer customer = customerRepository.findByUserId(user.getId())
+				.orElseGet(() -> new Customer());
+		
+		// If the existing profile is fully complete, should we throw? Or just update?
+		// We'll treat it as an update/upsert to support the UI workflow smoothly.
 
+		modelMapper.map(requestDTO, customer);
 		customer.setUser(user);
 
 		Customer savedCustomer = customerRepository.save(customer);
 
 		CustomerResponseDTO dto = convertToResponseDTO(savedCustomer);
 
-		logger.info("Customer profile created successfully with id: {}", savedCustomer.getId());
+		logger.info("Customer profile completed/updated successfully with id: {}", savedCustomer.getId());
 
-		return new ApiResponseDTO<>("Customer profile Created Successfully", true, dto, LocalDateTime.now());
+		return new ApiResponseDTO<>("Customer profile completed successfully", true, dto, LocalDateTime.now());
 	}
 
 	@Override
@@ -143,8 +136,8 @@ public class CustomerServiceImpl implements CustomerService {
 				"Fetching customers with pagination. pageNumber: {}, pageSize: {}, sortBy: {}, sortDirection: {}, city: {}, state: {}",
 				pageNumber, pageSize, sortBy, sortDirection, city, state);
 
-		validatePagination(pageNumber, pageSize);
-		validateCustomerSortField(sortBy);
+		PaginationValidator.validate(pageNumber, pageSize);
+		PaginationValidator.validateSortField(sortBy, Set.of("id", "city", "state", "pinCode", "createdDate"));
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(getSortDirection(sortDirection), sortBy));
 
@@ -153,7 +146,8 @@ public class CustomerServiceImpl implements CustomerService {
 		boolean hasState = state != null && !state.trim().isEmpty();
 
 		if (hasCity && hasState) {
-			customerPage = customerRepository.findByCityContainingIgnoreCaseAndStateContainingIgnoreCase(city.trim(), state.trim(), pageable);
+			customerPage = customerRepository.findByCityContainingIgnoreCaseAndStateContainingIgnoreCase(city.trim(),
+					state.trim(), pageable);
 		} else if (hasCity) {
 			customerPage = customerRepository.findByCityContainingIgnoreCase(city.trim(), pageable);
 		} else if (hasState) {
@@ -167,6 +161,7 @@ public class CustomerServiceImpl implements CustomerService {
 		return new PageResponseDTO<>(content, customerPage.getNumber(), customerPage.getSize(),
 				customerPage.getTotalElements(), customerPage.getTotalPages(), customerPage.isLast(), sortDirection);
 	}
+
 	private Customer findCustomerById(Long customerId) {
 
 		return customerRepository.findById(customerId)
@@ -185,29 +180,6 @@ public class CustomerServiceImpl implements CustomerService {
 
 				throw new BadRequestException("You are not allowed to access another customer's profile");
 			}
-		}
-	}
-
-	private void validatePagination(int pageNumber, int pageSize) {
-
-		if (pageNumber < 0) {
-			throw new BadRequestException("Page number cannot be negative.");
-		}
-
-		if (pageSize <= 0) {
-			throw new BadRequestException("Page size must be greater than 0.");
-		}
-
-		if (pageSize > 100) {
-			throw new BadRequestException("Page size cannot be greater than 100.");
-		}
-	}
-
-	private void validateCustomerSortField(String sortBy) {
-
-		if (!List.of("id", "city", "state", "pinCode", "createdDate").contains(sortBy)) {
-
-			throw new BadRequestException("Invalid sort field: " + sortBy);
 		}
 	}
 

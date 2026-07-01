@@ -1,18 +1,21 @@
 package com.insurance.demo.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.insurance.demo.dto.request.ForgotPasswordRequestDTO;
 import com.insurance.demo.dto.request.LoginRequestDTO;
+import com.insurance.demo.dto.request.ResendOtpRequestDTO;
+import com.insurance.demo.dto.request.ResetPasswordRequestDTO;
 import com.insurance.demo.dto.request.UserRequestDTO;
 import com.insurance.demo.dto.request.VerifyOtpRequest;
 import com.insurance.demo.dto.response.ApiResponseDTO;
 import com.insurance.demo.dto.response.LoginResponseDTO;
+import com.insurance.demo.dto.response.ResendOtpResponseDTO;
 import com.insurance.demo.dto.response.UserResponseDTO;
 import com.insurance.demo.service.AuthService;
 
@@ -27,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 @Tag(name = "1. Authentication API", description = "Endpoints for user registration, login, and OTP verification")
-@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
 	private final AuthService authService;
@@ -53,9 +55,27 @@ public class AuthController {
 	}
 
 	@PostMapping("/verify-otp")
-	@Operation(summary = "Verify OTP", description = "Verifies the OTP sent to the user's email to activate their account.")
+	@Operation(summary = "Verify OTP", description = "Verifies the OTP sent to the user's email and phone to activate their account.")
 	public ApiResponseDTO<UserResponseDTO> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
 		return authService.verifyOtp(request);
+	}
+	
+	@PostMapping("/resend-otp")
+	@Operation(summary = "Resend OTP", description = "Resend the OTP to user email and phone  to activate")
+	public ApiResponseDTO<ResendOtpResponseDTO> resendOtp(@Valid @RequestBody ResendOtpRequestDTO request){
+			return authService.resendOtp(request);
+	}
+	
+	@PostMapping("/forgot-password")
+	@Operation(summary = "Forgot Password", description = "Sends an OTP to the user's registered email and phone number for password reset.")
+	public ApiResponseDTO<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request) {
+		return authService.forgotPassword(request);
+	}
+
+	@PostMapping("/reset-password")
+	@Operation(summary = "Reset Password", description = "Resets the user's password using the OTPs sent to their email and phone.")
+	public ApiResponseDTO<String> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO request) {
+		return authService.resetPassword(request);
 	}
 
 }

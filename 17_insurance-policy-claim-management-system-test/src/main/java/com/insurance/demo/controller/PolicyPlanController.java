@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +32,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "5. Policy Plan API", description = "Endpoints for managing specific insurance plans linked to products")
-@CrossOrigin(origins = "http://localhost:5173")
 public class PolicyPlanController {
 
     private final PolicyPlanService policyPlanService;
@@ -74,23 +72,23 @@ public class PolicyPlanController {
     //  PUBLIC / ALL ROLES 
 
     @GetMapping("/active")
-    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'INTERNAL_STAFF', 'CUSTOMER')")
     @Operation(summary = "View All Active Plans", description = "Retrieves all currently active policy plans.")
     public ApiResponseDTO<List<PlanResponseDTO>> getAllActivePlans() {
         return policyPlanService.viewActivePlans();
     }
 
     @GetMapping("/{productId}/active")
-    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'INTERNAL_STAFF', 'CUSTOMER')")
     @Operation(summary = "View Active Plans by Product", description = "Retrieves all active plans associated with a specific insurance product.")
     public ApiResponseDTO<List<PlanResponseDTO>> getActivePlansByProduct(@PathVariable Long productId) {
         return policyPlanService.viewActivePlansUnderInsuranceProduct(productId);
     }
 
-    // PAGINATION (Admin/Agent) 
+    // PAGINATION (Admin/Internal Staff) 
 
     @GetMapping("/page")
-    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'INTERNAL_STAFF')")
     @Operation(summary = "Get All Plans (Paginated)", description = "Retrieves a paginated list of plans with optional filtering by product ID and active status.")
     public PageResponseDTO<PlanResponseDTO> getAllPlansWithPagination(
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -104,7 +102,7 @@ public class PolicyPlanController {
     }
 
     @GetMapping("/{planId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'INTERNAL_STAFF', 'CUSTOMER')")
     @Operation(summary = "Get Plan by ID", description = "Retrieves the details of a specific policy plan by its ID.")
     public ApiResponseDTO<PlanResponseDTO> getPlanById(@PathVariable Long planId) {
         return policyPlanService.getPlanById(planId); 

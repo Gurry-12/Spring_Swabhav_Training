@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,23 +31,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "3. Customer Profile API", description = "Endpoints for managing customer profiles and personal details")
-@CrossOrigin(origins = "http://localhost:5173")
 public class CustomerController {
 
 	private final CustomerService customerService;
 
-	@PostMapping("/{userId}")
+	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	@PreAuthorize("hasRole('CUSTOMER')")
-	@Operation(summary = "Create Customer Profile", description = "Creates a detailed customer profile for the logged-in user.")
-	public ApiResponseDTO<CustomerResponseDTO> createCustomer(@PathVariable Long userId,
-			@Valid @RequestBody CustomerRequestDTO requestDTO) {
+	@Operation(summary = "Create Customer Profile", description = "Creates a customer profile for the logged-in customer.")
+	public ApiResponseDTO<CustomerResponseDTO> createCustomer(@Valid @RequestBody CustomerRequestDTO requestDTO) {
 
-		return customerService.createCustomer(userId, requestDTO);
+		return customerService.createCustomer(requestDTO);
 	}
 
 	@GetMapping("/{customerId}")
-	@PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'INTERNAL_STAFF')")
 	@Operation(summary = "Get Customer by ID", description = "Retrieves a specific customer profile by ID.")
 	public ApiResponseDTO<CustomerResponseDTO> getCustomerById(@PathVariable Long customerId) {
 
@@ -56,8 +53,8 @@ public class CustomerController {
 	}
 
 	@GetMapping
-	@PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
-	@Operation(summary = "Get All Customers", description = "Retrieves a list of all customer profiles. Restricted to Admin/Agent.")
+	@PreAuthorize("hasAnyRole('ADMIN', 'INTERNAL_STAFF')")
+	@Operation(summary = "Get All Customers", description = "Retrieves a list of all customer profiles. Restricted to Admin/Internal Staff.")
 	public ApiResponseDTO<List<CustomerResponseDTO>> getAllCustomers() {
 
 		return customerService.getAllCustomers();
@@ -73,18 +70,16 @@ public class CustomerController {
 	}
 
 	@GetMapping("/page")
-	@PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
-	@Operation(summary = "Get All Customers", description = "Retrieves a paginated list of all customer profiles. Restricted to Admin/Agent.")
+	@PreAuthorize("hasAnyRole('ADMIN', 'INTERNAL_STAFF')")
+	@Operation(summary = "Get All Customers", description = "Retrieves a paginated list of all customer profiles. Restricted to Admin/Internal Staff.")
 	public PageResponseDTO<CustomerResponseDTO> getAllCustomersWithPagination(
 			@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize,
-			@RequestParam(defaultValue = "id") String sortBy,
-			@RequestParam(defaultValue = "asc") String sortDirection,
-			@RequestParam(required = false) String city,
-			@RequestParam(required = false) String state) {
+			@RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "asc") String sortDirection,
+			@RequestParam(required = false) String city, @RequestParam(required = false) String state) {
 
 		return customerService.getAllCustomersWithPagination(pageNumber, pageSize, sortBy, sortDirection, city, state);
 	}
-	
+
 	@GetMapping("/profile")
 	@PreAuthorize("hasRole('CUSTOMER')")
 	@Operation(summary = "Get My Profile", description = "Retrieves the customer profile of the currently logged-in user.")
